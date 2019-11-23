@@ -1,4 +1,6 @@
 using System;
+using System.Net;
+using AddressBook.Api.Infrastructure.Filters;
 using AddressBook.Domain.Interfaces;
 using AddressBook.Domain.Services;
 using AddressBook.Infrastructure.Data;
@@ -26,7 +28,12 @@ namespace AddressBook.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers(
+                options =>
+                {
+                    options.Filters.Add(typeof(ValidateModelStateFilter));
+                    options.Filters.Add(typeof(HttpGlobalExceptionFilter));
+                });
 
             services.AddScoped(typeof(IContactRepository), typeof(ContactRepository));
             services.AddScoped(typeof(IContactService), typeof(ContactService));
@@ -45,22 +52,6 @@ namespace AddressBook.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler(appBuilder =>
-                {
-                    appBuilder.Run(async context =>
-                    {
-                        context.Response.StatusCode = 500;
-                        await context.Response.WriteAsync("An unexpected error happened. Please try again later.");
-                    });
-                });
-            }
-
             app.UseHttpsRedirection();
 
             app.UseRouting();
