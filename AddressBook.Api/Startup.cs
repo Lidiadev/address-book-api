@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using AddressBook.Api.Hubs;
 using AddressBook.Api.Infrastructure.Filters;
 using AddressBook.Domain.Interfaces;
 using AddressBook.Domain.Services;
@@ -43,6 +44,8 @@ namespace AddressBook.Api
             services.AddDbContext<AddressBookContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddSignalR();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Address Book API", Version = "v1" });
@@ -61,6 +64,7 @@ namespace AddressBook.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<NotificationHub>("/notificationHub");
             });
 
             app.UseSwagger();
